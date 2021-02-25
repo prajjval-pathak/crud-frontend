@@ -1,23 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import React,{useState} from 'react';
+
+import "./App.css";
+import FacebookLogin from "react-facebook-login";
+import axios from "axios";
 
 function App() {
+
+  const [user, setUser] = useState({})
+
+
+  const responseFacebook = (response) => {
+    console.log(response);
+    axios({
+      method: "POST",
+      url: "http://localhost:8888/facebookLogin",
+      data: { accessToken: response.accessToken, userId: response.id },
+    }).then((res) => {
+      setUser(res.data)
+    });
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
+
+      {
+        user?.token ?
+         (
+           <div>
+             <h1>{user.user.name} </h1>
+             <h1>{user.user.email}</h1>
+             <a href={user.user.profilePhoto}>Click here for Profile Photo</a>
+              </div>
+         ): (
+          <FacebookLogin
+                  appId="450564109717592"
+                  autoLoad={false}
+                  fields="name,email,picture"
+                  callback={responseFacebook}
+                />
+                  )
+      }
+      
     </div>
   );
 }
